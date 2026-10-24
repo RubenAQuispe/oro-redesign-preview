@@ -1,0 +1,11 @@
+# Force non-www
+https://www.orohomes.net/* https://orohomes.net/:splat 301!
+http://www.orohomes.net/* https://orohomes.net/:splat 301!
+
+# Auth / OAuth callback for Thumbtack
+/auth/callback /auth/index.html 200
+/auth/callback/ /auth/index.html 200
+
+# Fix broken links
+/past-projects https://orohomes.net/#portfolio 301
+/past-projects/ https://orohomes.net/#portfolio 301

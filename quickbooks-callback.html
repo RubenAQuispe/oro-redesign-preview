@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="robots" content="noindex, nofollow">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickBooks Connected - ORO Homes</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        .success-icon {
+            font-size: 4rem;
+            color: #10B981;
+            margin-bottom: 1rem;
+        }
+        h1 {
+            color: #1F2937;
+            margin: 0 0 1rem 0;
+            font-size: 1.75rem;
+        }
+        p {
+            color: #6B7280;
+            margin: 0 0 2rem 0;
+            line-height: 1.6;
+        }
+        .code-box {
+            background: #F3F4F6;
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            word-break: break-all;
+            text-align: left;
+        }
+        .code-box strong {
+            color: #1F2937;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .status {
+            background: #DBEAFE;
+            color: #1E40AF;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-size: 0.875rem;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✅</div>
+        <h1>QuickBooks Connected!</h1>
+        <p>Your QuickBooks account has been successfully authorized.</p>
+        
+        <div id="status" class="status">
+            <div class="spinner"></div>
+            Sending authorization to Larry...
+        </div>
+        
+        <div id="details" style="display: none;">
+            <div class="code-box">
+                <strong>Authorization Code:</strong>
+                <span id="code"></span>
+            </div>
+            <div class="code-box">
+                <strong>Company ID:</strong>
+                <span id="realmId"></span>
+            </div>
+        </div>
+        
+        <p id="message" style="display: none;">
+            You can close this window and return to Telegram.
+        </p>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const realmId = urlParams.get('realmId');
+        const state = urlParams.get('state');
+        
+        if (code && realmId) {
+            // Display the credentials
+            document.getElementById('code').textContent = code;
+            document.getElementById('realmId').textContent = realmId;
+            
+            // Try to send to localhost server
+            fetch('http://localhost:8000/callback?' + new URLSearchParams({
+                code: code,
+                realmId: realmId,
+                state: state
+            }), {
+                mode: 'no-cors'
+            })
+            .then(() => {
+                document.getElementById('status').innerHTML = '✅ Successfully connected to Larry!';
+                document.getElementById('status').style.background = '#D1FAE5';
+                document.getElementById('status').style.color = '#065F46';
+                document.getElementById('message').style.display = 'block';
+                
+                // Auto-close after 3 seconds
+                setTimeout(() => {
+                    window.close();
+                }, 3000);
+            })
+            .catch(err => {
+                // If localhost fails, show manual copy option
+                document.getElementById('status').innerHTML = '⚠️ Manual step required';
+                document.getElementById('status').style.background = '#FEF3C7';
+                document.getElementById('status').style.color = '#92400E';
+                document.getElementById('details').style.display = 'block';
+                document.getElementById('message').innerHTML = 
+                    '<strong>Copy the codes above and send them to Larry in Telegram.</strong>';
+                document.getElementById('message').style.display = 'block';
+            });
+        } else {
+            document.querySelector('.success-icon').textContent = '❌';
+            document.querySelector('h1').textContent = 'Authorization Error';
+            document.querySelector('p').textContent = 'Missing authorization code or company ID.';
+            document.getElementById('status').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
